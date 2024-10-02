@@ -75,3 +75,15 @@
 .hide{
     display: none;
 }
+
+
+
+@media only screen and (max-width: 600px) {
+    .box {
+        height: 12vmin; /* Adjust for mobile */
+        width: 12vmin;
+    }
+    #heading {
+        font-size: 40px; /* Smaller heading for mobile */
+    }
+}
