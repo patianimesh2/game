@@ -1,0 +1,77 @@
+*{
+    padding: 0px;
+    margin: opx;
+    background-color: aqua;
+}
+
+#heading{
+    color: coral;
+    
+    font-size: 70px;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    
+}
+.container{
+    
+    height: 70vh;
+   
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.game{
+    
+    height: 60vmin;
+    width: 60vmin;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    display: flex;
+    gap: 1.2rem;
+}
+.box{
+    height: 100px;
+    width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size:xx-large;
+    font-weight: bolder;
+   border: 5px solid black;
+}
+.reset{
+    display: block;    /* Makes the button behave like a block element */
+    margin: 0 auto;    /* Horizontally center the button */
+    width: 150px;
+    height: 50px;
+    border: 2.5px solid black;
+    border-radius: 50px;
+}
+.mgcontainer{
+    
+    align-items: center;
+    justify-content: center;
+    display: flex;
+   
+
+}
+.msg{
+    font-size: 2.5rem;
+    font-weight: 600;
+    display: flex;
+}
+.btn2{
+    display: block;    /* Makes the button behave like a block element */
+    margin: 0 auto;    /* Horizontally center the button */
+    width: 150px;
+    height: 50px;
+    border: 2.5px solid black;
+    border-radius: 50px;
+
+}
+.hide{
+    display: none;
+}
