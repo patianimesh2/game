@@ -1,29 +1,28 @@
-*{
-    padding: 0px;
-    margin: opx;
+/* Reset margin and padding */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
     background-color: aqua;
 }
 
-#heading{
+#heading {
     color: coral;
-    
-    font-size: 70px;
+    font-size: 5vw; /* Scales based on viewport width */
     align-items: center;
     justify-content: center;
     display: flex;
-    
 }
-.container{
-    
+
+.container {
     height: 70vh;
-   
     display: flex;
     align-items: center;
     justify-content: center;
 }
-.game{
-    
-    height: 60vmin;
+
+.game {
+    height: 60vmin; /* vmin adapts to both height and width */
     width: 60vmin;
     justify-content: center;
     flex-wrap: wrap;
@@ -31,59 +30,74 @@
     display: flex;
     gap: 1.2rem;
 }
-.box{
-    height: 100px;
-    width: 100px;
+
+.box {
+    height: 18vmin; /* Adjusts based on viewport size */
+    width: 18vmin;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    font-size:xx-large;
+    font-size: 5vmin; /* Responsive font size */
     font-weight: bolder;
-   border: 5px solid black;
+    border: 5px solid black;
 }
-.reset{
-    display: block;    /* Makes the button behave like a block element */
-    margin: 0 auto;    /* Horizontally center the button */
-    width: 150px;
-    height: 50px;
+
+.reset {
+    display: block;
+    margin: 0 auto;
+    width: 20vmin;
+    height: 5vmin;
     border: 2.5px solid black;
     border-radius: 50px;
+    font-size: 2vmin; /* Responsive font size */
 }
-.mgcontainer{
-    
+
+.mgcontainer {
     align-items: center;
     justify-content: center;
     display: flex;
-   
-
 }
-.msg{
-    font-size: 2.5rem;
+
+.msg {
+    font-size: 4vmin; /* Responsive font size */
     font-weight: 600;
     display: flex;
 }
-.btn2{
-    display: block;    /* Makes the button behave like a block element */
-    margin: 0 auto;    /* Horizontally center the button */
-    width: 150px;
-    height: 50px;
+
+.btn2 {
+    display: block;
+    margin: 0 auto;
+    width: 20vmin;
+    height: 5vmin;
     border: 2.5px solid black;
     border-radius: 50px;
-
+    font-size: 2vmin; /* Responsive font size */
 }
-.hide{
+
+.hide {
     display: none;
 }
 
-
-
+/* Mobile styles */
 @media only screen and (max-width: 600px) {
     .box {
-        height: 12vmin; /* Adjust for mobile */
-        width: 12vmin;
+        height: 15vmin; /* Smaller for mobile */
+        width: 15vmin;
     }
+
     #heading {
-        font-size: 40px; /* Smaller heading for mobile */
+        font-size: 7vw; /* Larger heading for small screens */
+    }
+
+    .reset, .btn2 {
+        width: 30vmin; /* Bigger buttons on mobile */
+        height: 7vmin;
+        font-size: 3vmin;
+    }
+
+    .msg {
+        font-size: 5vmin;
     }
 }
+
