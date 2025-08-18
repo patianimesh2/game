@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:ui' as ui;
 import 'dart:math';
 import 'package:provider/provider.dart';
 import 'settings_provider.dart';
@@ -60,7 +61,8 @@ class _SnakeGameState extends State<SnakeGame> {
 
   void _startGameLoop() {
     final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
-    final gameSpeed = (11 - settingsProvider.snakeSpeed) * 50; // Map speed 1-10 to milliseconds (slower to faster)
+    // Increased speed by directly setting a lower value for gameSpeed
+    final gameSpeed = 100; // Example: Set a fixed lower value for increased speed
     gameTimer = Timer.periodic(Duration(milliseconds: gameSpeed.toInt()), (timer) {
       _moveSnake();
       _checkCollisions();
@@ -126,8 +128,30 @@ class _SnakeGameState extends State<SnakeGame> {
 
   void _gameOver() {
     gameTimer?.cancel();
-    // TODO: Implement game over UI
     print('Game Over! Your score is: $score');
+    _showGameOverDialog();
+  }
+
+  void _showGameOverDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent closing by tapping outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Game Over!'),
+          content: Text('Your score is: $score'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Restart'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _initializeGame(); // Restart the game
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _changeDirection(String newDirection) {
@@ -157,16 +181,13 @@ class _SnakeGameState extends State<SnakeGame> {
               builder: (context, constraints) {
                 final double cellSize = constraints.maxWidth / gridSize;
                 return GestureDetector(
-                  // Add background color to the GestureDetector or a Container below it
-                  child: Container(
-                    color: settingsProvider.backgroundColor, // Use background color from settings
-              onVerticalDragUpdate: (details) {
-                if (details.delta.dy > 0 && direction != 'up') {
-                  _changeDirection('down');
-                } else if (details.delta.dy < 0 && direction != 'down') {
-                  _changeDirection('up');
-                }
-              },
+                  onVerticalDragUpdate: (details) {
+ if (details.delta.dy > 0 && direction != 'up') {
+ _changeDirection('down');
+ } else if (details.delta.dy < 0 && direction != 'down') {
+ _changeDirection('up');
+ }
+ },
               onHorizontalDragUpdate: (details) {
                 if (details.delta.dx > 0 && direction != 'left') {
                   _changeDirection('right');
@@ -175,8 +196,10 @@ class _SnakeGameState extends State<SnakeGame> {
                 }
               },
                   child: CustomPaint(
-                    painter: SnakeGamePainter(snake: snake, food: food, gridSize: gridSize, cellSize: cellSize, snakeColor: settingsProvider.snakeColor),
-                    child: Container(), // Empty container to provide a surface for drawing
+                    painter: SnakeGamePainter(
+ snake: snake, food: food, gridSize: gridSize, cellSize: cellSize, snakeColor: settingsProvider.snakeColor, backgroundColor: settingsProvider.backgroundColor,
+ ),
+                    child: Container(),
                   ),
                 ),
           ),
@@ -197,39 +220,89 @@ class _SnakeGameState extends State<SnakeGame> {
 }
 
 // CustomPainter to draw the snake and food
+// CustomPainter to draw the snake and food
 class SnakeGamePainter extends CustomPainter {
   final List<Offset> snake;
   final Offset food;
   final int gridSize;
   final double cellSize;
-  final Color snakeColor; // Use snake color from settings
+  final Color snakeColor;
+  final Color backgroundColor;
+  final ui.Image? foodImage; // Make foodImage nullable
 
-  SnakeGamePainter({required this.snake, required this.food, required this.gridSize, required this.cellSize, required this.snakeColor});
+  SnakeGamePainter({
+    required this.snake,
+    required this.food,
+    required this.gridSize,
+    required this.cellSize,
+    required this.snakeColor,
+    required this.backgroundColor,
+    this.foodImage, // Accept nullable foodImage
+ });
 
   @override
   void paint(Canvas canvas, Size size) {
+    // Draw background
+    final backgroundPaint = Paint()..color = backgroundColor;
+    canvas.drawRect(Offset.zero & size, backgroundPaint);
+
     // Draw snake
     final snakePaint = Paint()
-      ..color = snakeColor // Use the passed snake color
+      ..color = snakeColor
       ..style = PaintingStyle.fill;
-    for (var segment in snake) {
-      canvas.drawRect(Rect.fromLTWH(segment.dx * cellSize, segment.dy * cellSize, cellSize, cellSize), snakePaint);
+
+    // Draw snake head with rounded corners
+    if (snake.isNotEmpty) {
+      final headRect = Rect.fromLTWH(snake.first.dx * cellSize, snake.first.dy * cellSize, cellSize, cellSize);
+      canvas.drawRRect(RRect.fromRectAndRadius(headRect, const Radius.circular(5.0)), snakePaint);
+
+      // Draw snake body segments
+      for (int i = 1; i < snake.length; i++) {
+        final segmentRect = Rect.fromLTWH(snake[i].dx * cellSize, snake[i].dy * cellSize, cellSize, cellSize);
+
+        // Determine the direction of the segment relative to the previous one
+        final dx = snake[i].dx - snake[i - 1].dx;
+        final dy = snake[i].dy - snake[i - 1].dy;
+
+        // Draw rounded rectangles for body segments
+        if (dx != 0 || dy != 0) {
+          RRect roundedRect;
+          if (dx != 0) {
+            // Horizontal segment
+            roundedRect = RRect.fromRectAndRadius(segmentRect, Radius.circular(cellSize / 2));
+          } else {
+            // Vertical segment
+            roundedRect = RRect.fromRectAndRadius(segmentRect, Radius.circular(cellSize / 2));
+          }
+          canvas.drawRRect(roundedRect, snakePaint);
+        } else {
+          // This case should ideally not happen in a valid snake game state
+          canvas.drawRect(segmentRect, snakePaint);
+        }
+      }
     }
+
+    // Draw food image
+    if (foodImage != null) {
+      final foodRect = Rect.fromLTWH(food.dx * cellSize, food.dy * cellSize, cellSize, cellSize);
+      canvas.drawImageRect(foodImage!, Rect.fromLTWH(0, 0, foodImage!.width.toDouble(), foodImage!.height.toDouble()), foodRect, Paint());
+    } else {
+      // Draw a placeholder if the image is not loaded
+      canvas.drawRect(Rect.fromLTWH(food.dx * cellSize, food.dy * cellSize, cellSize, cellSize), Paint()..color = Colors.red);
+    }
+    // Draw background
+    final backgroundPaint = Paint()
+      ..color = backgroundColor;
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), backgroundPaint);
 
     // Draw food
     // Use an Image widget for food
-    // Replace 'assets/food_image.png' with the actual path to your food image
-    final foodImage = Image.asset('assets/food_image.png');
     final foodRect = Rect.fromLTWH(food.dx * cellSize, food.dy * cellSize, cellSize, cellSize);
 
-    // Draw the image onto the canvas
-    // You'll need to load the image asynchronously and redraw when it's ready.
-    // For simplicity here, I'm assuming the image is loaded synchronously for now.
-    // A more robust solution would use Image.resolve and listen for changes.
-    // This part will require more complex image loading logic.
-    // For now, this is a placeholder.
+    if (foodImage != null) {
+      canvas.drawImageRect(foodImage!, Rect.fromLTWH(0, 0, foodImage!.width.toDouble(), foodImage!.height.toDouble()), foodRect, Paint());
+    }
   }
-
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     // Repaint when snake or food position changes
